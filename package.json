@@ -1,0 +1,32 @@
+{
+  "name": "args-list-parser",
+  "version": "1.0.1",
+  "description": "Parse command line args for node scripts",
+  "main": "src/ArgsListParser",
+  "scripts": {
+    "test": "node test/test"
+  },
+  "keywords": [
+    "args",
+    "argument",
+    "arg",
+    "commandline",
+    "cli",
+    "list",
+    "parse",
+    "parser"
+  ],
+  "author": "",
+  "license": "ISC",
+  "directories": {
+    "test": "test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mahhov/args-list-parser.git"
+  },
+  "bugs": {
+    "url": "https://github.com/mahhov/args-list-parser/issues"
+  },
+  "homepage": "https://github.com/mahhov/args-list-parser#readme"
+}
