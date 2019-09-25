@@ -13,7 +13,7 @@ to objects such as
   build: true,
   files: ['x', 'y'],
   output: ['z'],
-  threads: ['8']
+  threads: [8]
 }
 ```
 
@@ -29,23 +29,24 @@ let argDescriptions = [
     names: ['build', 'b'],
     values: 0,
     example: '-b',
-    explanation: 'if provided, re-builds'
+    explanation: 'if provided, re-builds',
   }, {
     names: ['files', 'f'],
     values: 2,
     example: '-f in_1.js in_2.js in_3.js',
-    explanation: 'the input files to process'
+    explanation: 'the input files to process',
   }, {
     names: ['output', 'o'],
     values: 1,
     example: '-o out.js',
-    explanation: 'the output file to process'
+    explanation: 'the output file to process',
   }, {
     names: ['threads', 't'],
-    defaultValue: '8',
+    type: 'int'
+    defaultValue: 8,
     values: 1,
     example: '-t 16',
-    explanation: 'number of threads to use'
+    explanation: 'number of threads to use',
   }
 ];
 
@@ -58,6 +59,7 @@ let args = argsListParser.parse();
 The argument descriptions used to construct `ArgsListPaerser` should be a list of objects of the format below.
 
 - `names` indicates aliases the user can use to specify a value for an argument.
+- `type` (optional) indicates the value type of an argument. Defaults to `'string'`.
 - `defaultValue` (optional) sets the default value of an argument if the user does not provide a value.
 - `values` indicates whether an argument accepts 0, 1, or multiple values.
 - `example` and `explanation` are used to construct the help output described later.  
@@ -65,8 +67,9 @@ The argument descriptions used to construct `ArgsListPaerser` should be a list o
 ```
 {
   names: Array<string>,
-  defaultValue: string',
-  values: int,
+  type: string ('int'|'bool'|'string'),
+  defaultValue: string|int|bool,
+  values: int (0|1|2),
   example: string,
   explanation: string,
 },

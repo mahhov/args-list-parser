@@ -30,7 +30,7 @@ class ArgsListParser {
 					console.warn(`Warning: multiple arg values provided for single value arg '${argName}'.`);
 				else {
 					args[argName] = args[argName] || [];
-					args[argName].push(argString);
+					args[argName].push(ArgsListParser.parseStringValue_(argString, argDescription.type));
 				}
 			} else
 				console.warn(`Warning: arg value '${argString}' provided without an arg name.`);
@@ -50,12 +50,41 @@ class ArgsListParser {
 	}
 
 	printHelp_() {
-		const valueCountHelps = ['no values', 'single value', 'multiple values'];
+		const valueCountHelps = {
+			int: ['no values', 'single int', 'multiple ints'],
+			bool: ['no values', 'single bool', 'multiple bools'],
+			string: ['no values', 'single string', 'multiple strings'],
+		};
 		let lines = ArgsListParser.alignColumns_(this.argDescriptions_
-			.map(({names, values, example, explanation}) =>
-				['', example, names.join('|'), valueCountHelps[values], explanation]))
+			.map(({names, type = 'string', values, example, explanation}) =>
+				['', example, names.join('|'), valueCountHelps[type][values], explanation]))
 			.map(lineArray => lineArray.join('    '));
 		console.info(['Arguments:', ...lines].join('\n'));
+	}
+
+	static parseStringValue_(value, type = 'string') {
+		if (type === 'int') {
+			if (!/^\d+$/.test(value))
+				console.warn(`Warning: unexpected int arg value '${value}'. Expected /^\\d+$/.`);
+			return parseInt(value);
+		}
+
+		if (type === 'bool') {
+			let lowerValue = value.toLowerCase();
+			if (['true', 't', '1'].includes(lowerValue))
+				return true;
+			else if (['false', 'f', '0'].includes(lowerValue))
+				return false;
+			else {
+				console.warn(`Warning: unexpected bool arg value '${value}'. Expected 'true', 't', '1', 'false', 'f', or '0']`);
+				return false;
+			}
+		}
+
+		if (type !== 'string')
+			console.warn(`Warning: unexpected arg type '${type}'. Expected 'int', 'bool', or 'string'.`);
+
+		return value;
 	}
 
 	static alignColumns_(rows) {
