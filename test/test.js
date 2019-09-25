@@ -191,9 +191,9 @@ testBlock('UNPARSED BOOL TYPE WARNING', () => {
 testBlock('UNEXPECTED TYPE WARNING', () => {
 	let argsListParser = new ArgsListParser([{
 		names: ['some'],
+		defaultValues: ['def'],
 		values: 2,
 		type: 'some',
-		defaultValue: ['def'],
 	}]);
 
 	assert.deepEqual(argsListParser.parse(['-some', 'x', 'y']), {
