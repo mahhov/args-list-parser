@@ -39,8 +39,8 @@ class ArgsListParser {
 		if (this.printArgs_)
 			console.log('\nArgs:', JSON.stringify(args, '', 2));
 
-		this.argDescriptions_.forEach(({names: [name], defaultValue}) =>
-			args[name] = args[name] || defaultValue && [defaultValue]);
+		this.argDescriptions_.forEach(({names: [name], defaultValues}) =>
+			args[name] = args[name] || defaultValues);
 
 		return args;
 	}

@@ -20,6 +20,7 @@ let argDescriptions = [
 		explanation: 'if provided, re-builds',
 	}, {
 		names: ['files', 'f'],
+		defaultValues: ['n', 'm'],
 		values: 2,
 		example: '-f in_1.js in_2.js in_3.js',
 		explanation: 'the input files to process',
@@ -31,8 +32,8 @@ let argDescriptions = [
 		explanation: 'the output file to process',
 	}, {
 		names: ['threads', 't'],
+		defaultValues: [8],
 		type: 'int',
-		defaultValue: 8,
 		values: 1,
 		example: '-t 16',
 		explanation: 'number of threads to use',
@@ -87,7 +88,7 @@ testBlock('NAME AND ALIASES', () => {
 testBlock('DEFAULT VALUES', () => {
 	assert.deepEqual(argsListParser.parse(['-f']), {
 		build: undefined,
-		files: undefined,
+		files: ['n', 'm'],
 		output: undefined,
 		threads: [8],
 		other: undefined,
@@ -98,7 +99,7 @@ testBlock('DEFAULT VALUES', () => {
 testBlock('PARSING INT AND BOOL VALUES', () => {
 	assert.deepEqual(argsListParser.parse(['-threads', '20', '-other', 't', '0', 'FALSE', '1', 'tRUE', 'F']), {
 		build: undefined,
-		files: undefined,
+		files: ['n', 'm'],
 		output: undefined,
 		threads: [20],
 		other: [true, false, false, true, true, false],
@@ -109,7 +110,7 @@ testBlock('PARSING INT AND BOOL VALUES', () => {
 testBlock('UNEXPECTED ARG WARNING', () => {
 	assert.deepEqual(argsListParser.parse(['-x']), {
 		build: undefined,
-		files: undefined,
+		files: ['n', 'm'],
 		output: undefined,
 		threads: [8],
 		other: undefined,
@@ -120,7 +121,7 @@ testBlock('UNEXPECTED ARG WARNING', () => {
 testBlock('NO ARG NAME WARNING', () => {
 	assert.deepEqual(argsListParser.parse(['x',]), {
 		build: undefined,
-		files: undefined,
+		files: ['n', 'm'],
 		output: undefined,
 		threads: [8],
 		other: undefined,
@@ -142,7 +143,7 @@ testBlock('REPEATED ARG WARNING', () => {
 testBlock('MULTIPLE VALUES FOR 1-VALUE ARG WARNING', () => {
 	assert.deepEqual(argsListParser.parse(['-o', 'o1', 'o2']), {
 		build: undefined,
-		files: undefined,
+		files: ['n', 'm'],
 		output: ['o1'],
 		threads: [8],
 		other: undefined,
@@ -153,7 +154,7 @@ testBlock('MULTIPLE VALUES FOR 1-VALUE ARG WARNING', () => {
 testBlock('VALUE FOR 0-VALUE ARG WARNING', () => {
 	assert.deepEqual(argsListParser.parse(['-b', 'b',]), {
 		build: true,
-		files: undefined,
+		files: ['n', 'm'],
 		output: undefined,
 		threads: [8],
 		other: undefined,
@@ -164,7 +165,7 @@ testBlock('VALUE FOR 0-VALUE ARG WARNING', () => {
 testBlock('UNPARSED INT TYPE WARNING', () => {
 	assert.deepEqual(argsListParser.parse(['-threads', '4.3']), {
 		build: undefined,
-		files: undefined,
+		files: ['n', 'm'],
 		output: undefined,
 		threads: [4],
 		other: undefined,
@@ -175,7 +176,7 @@ testBlock('UNPARSED INT TYPE WARNING', () => {
 testBlock('UNPARSED BOOL TYPE WARNING', () => {
 	assert.deepEqual(argsListParser.parse(['-other', 'tr', 'falsee']), {
 		build: undefined,
-		files: undefined,
+		files: ['n', 'm'],
 		output: undefined,
 		threads: [8],
 		other: [false, false],
@@ -192,7 +193,7 @@ testBlock('UNEXPECTED TYPE WARNING', () => {
 		names: ['some'],
 		values: 2,
 		type: 'some',
-		defaultValue: 'def',
+		defaultValue: ['def'],
 	}]);
 
 	assert.deepEqual(argsListParser.parse(['-some', 'x', 'y']), {

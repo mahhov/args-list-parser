@@ -42,8 +42,8 @@ let argDescriptions = [
     explanation: 'the output file to process',
   }, {
     names: ['threads', 't'],
+    defaultValues: [8],
     type: 'int'
-    defaultValue: 8,
     values: 1,
     example: '-t 16',
     explanation: 'number of threads to use',
@@ -60,15 +60,15 @@ The argument descriptions used to construct `ArgsListPaerser` should be a list o
 
 - `names` indicates aliases the user can use to specify a value for an argument.
 - `type` (optional) indicates the value type of an argument. Defaults to `'string'`.
-- `defaultValue` (optional) sets the default value of an argument if the user does not provide a value.
+- `defaultValues` (optional) sets the default values of an argument if the user does not provide any values.
 - `values` indicates whether an argument accepts 0, 1, or multiple values.
 - `example` and `explanation` are used to construct the help output described later.  
 
 ```
 {
   names: Array<string>,
+  defaultValues: Array<string|int|bool>,
   type: string ('int'|'bool'|'string'),
-  defaultValue: string|int|bool,
   values: int (0|1|2),
   example: string,
   explanation: string,
