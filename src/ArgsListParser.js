@@ -63,28 +63,32 @@ class ArgsListParser {
 	}
 
 	static parseStringValue_(value, type = 'string') {
-		if (type === 'int') {
-			if (!/^\d+$/.test(value))
-				console.warn(`Warning: unexpected int arg value '${value}'. Expected /^\\d+$/.`);
-			return parseInt(value);
+		value = value.replace(/^\\/, '');
+
+		switch (type) {
+			case 'int':
+				if (!/^-?\d+$/.test(value))
+					console.warn(`Warning: unexpected int arg value '${value}'. Expected /^\\d+$/.`);
+				return parseInt(value);
+
+			case 'bool':
+				let lowerValue = value.toLowerCase();
+				if (['true', 't', '1'].includes(lowerValue))
+					return true;
+				else if (['false', 'f', '0'].includes(lowerValue))
+					return false;
+				else {
+					console.warn(`Warning: unexpected bool arg value '${value}'. Expected 'true', 't', '1', 'false', 'f', or '0']`);
+					return false;
+				}
+
+			case 'string':
+				return value;
+
+			default:
+				console.warn(`Warning: unexpected arg type '${type}'. Expected 'int', 'bool', or 'string'.`);
+				return value;
 		}
-
-		if (type === 'bool') {
-			let lowerValue = value.toLowerCase();
-			if (['true', 't', '1'].includes(lowerValue))
-				return true;
-			else if (['false', 'f', '0'].includes(lowerValue))
-				return false;
-			else {
-				console.warn(`Warning: unexpected bool arg value '${value}'. Expected 'true', 't', '1', 'false', 'f', or '0']`);
-				return false;
-			}
-		}
-
-		if (type !== 'string')
-			console.warn(`Warning: unexpected arg type '${type}'. Expected 'int', 'bool', or 'string'.`);
-
-		return value;
 	}
 
 	static alignColumns_(rows) {

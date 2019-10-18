@@ -205,3 +205,14 @@ testBlock('UNEXPECTED TYPE WARNING', () => {
 			"Warning: unexpected arg type 'some'. Expected 'int', 'bool', or 'string'."]
 	});
 });
+
+testBlock('SLASH ESCAPE DASH', () => {
+	assert.deepEqual(argsListParser.parse(['-f', '\\-x', '\\\\-y', '-t', '\\-3']), {
+		build: undefined,
+		files: ['-x', '\\-y'],
+		output: undefined,
+		threads: [-3],
+		other: undefined,
+	});
+	consoleAssert();
+});
