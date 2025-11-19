@@ -12,8 +12,8 @@ to objects such as
 {
   build: true,
   files: ['x', 'y'],
-  output: ['z'],
-  threads: [8]
+  output: 'z',
+  threads: 8
 }
 ```
 
@@ -33,6 +33,7 @@ let argDescriptions = [
   }, {
     names: ['files', 'f'],
     values: 2,
+    defaultValue: ['input.txt'],
     example: '-f in_1.js in_2.js in_3.js',
     explanation: 'the input files to process',
   }, {
@@ -42,11 +43,18 @@ let argDescriptions = [
     explanation: 'the output file to process',
   }, {
     names: ['threads', 't'],
-    defaultValues: [8],
+    defaultValue: 8,
     type: 'int'
     values: 1,
     example: '-t 16',
     explanation: 'number of threads to use',
+  }, {
+    names: ['lists'],
+    defaultValue: [[0], [1, 2], [3, 4, 5]],
+    type: 'int'
+    values: 3,
+    example: '-lists 0 -lists 1 2 -lists 3 4 5',
+    explanation: '2d array param',
   }
 ];
 

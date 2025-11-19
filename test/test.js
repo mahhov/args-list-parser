@@ -20,7 +20,7 @@ let argDescriptions = [
 		explanation: 'if provided, re-builds',
 	}, {
 		names: ['files', 'f'],
-		defaultValues: ['n', 'm'],
+		defaultValue: ['n', 'm'],
 		values: 2,
 		example: '-f in_1.js in_2.js in_3.js',
 		explanation: 'the input files to process',
@@ -32,7 +32,7 @@ let argDescriptions = [
 		explanation: 'the output file to process',
 	}, {
 		names: ['threads', 't'],
-		defaultValues: [8],
+		defaultValue: 8,
 		type: 'int',
 		values: 1,
 		example: '-t 16',
@@ -43,6 +43,12 @@ let argDescriptions = [
 		values: 2,
 		example: '-other false true',
 		explanation: 'other flags',
+	}, {
+		names: ['repeats'],
+		type: 'int',
+		values: 3,
+		example: '',
+		explanation: '',
 	},
 ];
 
@@ -66,11 +72,12 @@ testBlock('HELP', () => {
 	assert.equal(argsListParser.parse(['help']), undefined);
 	consoleAssert({
 		info: [`Arguments:
-    -b                            build|b      no values           if provided, re-builds    
-    -f in_1.js in_2.js in_3.js    files|f      multiple strings    the input files to process
-    -o out.js                     output|o     single string       the output file to process
-    -t 16                         threads|t    single int          number of threads to use  
-    -other false true             other        multiple bools      other flags               `]
+    -b                            build|b      no values                 if provided, re-builds    
+    -f in_1.js in_2.js in_3.js    files|f      multiple strings          the input files to process
+    -o out.js                     output|o     single string             the output file to process
+    -t 16                         threads|t    single int                number of threads to use  
+    -other false true             other        multiple bools            other flags               
+                                  repeats      repeated multiple ints                              `],
 	});
 });
 
@@ -78,20 +85,34 @@ testBlock('NAME AND ALIASES', () => {
 	assert.deepEqual(argsListParser.parse(['-build', '-f', 'x', 'output', '-output', 'build', '-t', '10']), {
 		build: true,
 		files: ['x', 'output'],
-		output: ['build'],
-		threads: [10],
+		output: 'build',
+		threads: 10,
 		other: undefined,
+		repeats: undefined,
 	});
 	consoleAssert();
 });
 
 testBlock('DEFAULT VALUES', () => {
-	assert.deepEqual(argsListParser.parse(['-f']), {
+	assert.deepEqual(argsListParser.parse(['-build']), {
+		build: true,
+		files: ['n', 'm'],
+		output: undefined,
+		threads: 8,
+		other: undefined,
+		repeats: undefined,
+	});
+	consoleAssert();
+});
+
+testBlock('DEFAULT VALUES FALSY', () => {
+	assert.deepEqual(argsListParser.parse(['-t', '0']), {
 		build: undefined,
 		files: ['n', 'm'],
 		output: undefined,
-		threads: [8],
+		threads: 0,
 		other: undefined,
+		repeats: undefined,
 	});
 	consoleAssert();
 });
@@ -101,8 +122,9 @@ testBlock('PARSING INT AND BOOL VALUES', () => {
 		build: undefined,
 		files: ['n', 'm'],
 		output: undefined,
-		threads: [20],
+		threads: 20,
 		other: [true, false, false, true, true, false],
+		repeats: undefined,
 	});
 	consoleAssert();
 });
@@ -112,30 +134,33 @@ testBlock('UNEXPECTED ARG WARNING', () => {
 		build: undefined,
 		files: ['n', 'm'],
 		output: undefined,
-		threads: [8],
+		threads: 8,
 		other: undefined,
+		repeats: undefined,
 	});
 	consoleAssert({warn: ["Warning: unexpected arg name '-x'."]});
 });
 
 testBlock('NO ARG NAME WARNING', () => {
-	assert.deepEqual(argsListParser.parse(['x',]), {
+	assert.deepEqual(argsListParser.parse(['x']), {
 		build: undefined,
 		files: ['n', 'm'],
 		output: undefined,
-		threads: [8],
+		threads: 8,
 		other: undefined,
+		repeats: undefined,
 	});
 	consoleAssert({warn: ["Warning: arg value 'x' provided without an arg name."]});
 });
 
 testBlock('REPEATED ARG WARNING', () => {
-	assert.deepEqual(argsListParser.parse(['-f', 'f', '-f']), {
+	assert.deepEqual(argsListParser.parse(['-f', 'f', '-f', 'f2']), {
 		build: undefined,
-		files: ['f'],
+		files: ['f', 'f2'],
 		output: undefined,
-		threads: [8],
+		threads: 8,
 		other: undefined,
+		repeats: undefined,
 	});
 	consoleAssert({warn: ["Warning: arg name '-f' appeared multiple times."]});
 });
@@ -144,20 +169,22 @@ testBlock('MULTIPLE VALUES FOR 1-VALUE ARG WARNING', () => {
 	assert.deepEqual(argsListParser.parse(['-o', 'o1', 'o2']), {
 		build: undefined,
 		files: ['n', 'm'],
-		output: ['o1'],
-		threads: [8],
+		output: 'o1',
+		threads: 8,
 		other: undefined,
+		repeats: undefined,
 	});
 	consoleAssert({warn: ["Warning: multiple arg values provided for single value arg 'output'."]});
 });
 
 testBlock('VALUE FOR 0-VALUE ARG WARNING', () => {
-	assert.deepEqual(argsListParser.parse(['-b', 'b',]), {
+	assert.deepEqual(argsListParser.parse(['-b', 'b']), {
 		build: true,
 		files: ['n', 'm'],
 		output: undefined,
-		threads: [8],
+		threads: 8,
 		other: undefined,
+		repeats: undefined,
 	});
 	consoleAssert({warn: ["Warning: arg value provided for zero value arg 'build'."]});
 });
@@ -167,8 +194,9 @@ testBlock('UNPARSED INT TYPE WARNING', () => {
 		build: undefined,
 		files: ['n', 'm'],
 		output: undefined,
-		threads: [4],
+		threads: 4,
 		other: undefined,
+		repeats: undefined,
 	});
 	consoleAssert({warn: ["Warning: unexpected int arg value '4.3'. Expected /^\\d+$/."]});
 });
@@ -178,20 +206,21 @@ testBlock('UNPARSED BOOL TYPE WARNING', () => {
 		build: undefined,
 		files: ['n', 'm'],
 		output: undefined,
-		threads: [8],
+		threads: 8,
 		other: [false, false],
+		repeats: undefined,
 	});
 	consoleAssert({
 		warn: [
 			"Warning: unexpected bool arg value 'tr'. Expected 'true', 't', '1', 'false', 'f', or '0']",
-			"Warning: unexpected bool arg value 'falsee'. Expected 'true', 't', '1', 'false', 'f', or '0']"]
+			"Warning: unexpected bool arg value 'falsee'. Expected 'true', 't', '1', 'false', 'f', or '0']"],
 	});
 });
 
 testBlock('UNEXPECTED TYPE WARNING', () => {
 	let argsListParser = new ArgsListParser([{
 		names: ['some'],
-		defaultValues: ['def'],
+		defaultValue: ['def'],
 		values: 2,
 		type: 'some',
 	}]);
@@ -202,7 +231,7 @@ testBlock('UNEXPECTED TYPE WARNING', () => {
 	consoleAssert({
 		warn: [
 			"Warning: unexpected arg type 'some'. Expected 'int', 'bool', or 'string'.",
-			"Warning: unexpected arg type 'some'. Expected 'int', 'bool', or 'string'."]
+			"Warning: unexpected arg type 'some'. Expected 'int', 'bool', or 'string'."],
 	});
 });
 
@@ -211,8 +240,21 @@ testBlock('SLASH ESCAPE DASH', () => {
 		build: undefined,
 		files: ['-x', '\\-y'],
 		output: undefined,
-		threads: [-3],
+		threads: -3,
 		other: undefined,
+		repeats: undefined,
+	});
+	consoleAssert();
+});
+
+testBlock('REPEATABLE ARGS', () => {
+	assert.deepEqual(argsListParser.parse(['-repeats', '5', '6', '-repeats', '1', '2', '3', '-repeats']), {
+		build: undefined,
+		files: ['n', 'm'],
+		output: undefined,
+		threads: 8,
+		other: undefined,
+		repeats: [[5, 6], [1, 2, 3], []],
 	});
 	consoleAssert();
 });

@@ -19,18 +19,28 @@ class ArgsListParser {
 				argName = argDescription && argDescription.names[0];
 				if (!argDescription)
 					console.warn(`Warning: unexpected arg name '${argString}'.`);
+				else if (argDescription.values !== 3 && argName in args)
+					console.warn(`Warning: arg name '${argString}' appeared multiple times.`);
 				else if (!argDescription.values)
 					args[argName] = true;
-				else if (argName in args)
-					console.warn(`Warning: arg name '${argString}' appeared multiple times.`);
+				else if (argDescription.values === 2)
+					args[argName] = [];
+				else if (argDescription.values === 3) {
+					args[argName] ||= [];
+					args[argName].push([]);
+				}
 			} else if (argDescription) {
+				let value = ArgsListParser.parseStringValue_(argString, argDescription.type);
 				if (!argDescription.values)
 					console.warn(`Warning: arg value provided for zero value arg '${argName}'.`);
-				else if (args[argName] && argDescription.values === 1)
+				else if (argDescription.values === 1 && args[argName] !== undefined)
 					console.warn(`Warning: multiple arg values provided for single value arg '${argName}'.`);
-				else {
-					args[argName] = args[argName] || [];
-					args[argName].push(ArgsListParser.parseStringValue_(argString, argDescription.type));
+				else if (argDescription.values === 1)
+					args[argName] = value;
+				else if (argDescription.values === 2)
+					args[argName].push(value);
+				else if (argDescription.values === 3) {
+					args[argName][args[argName].length - 1].push(value);
 				}
 			} else
 				console.warn(`Warning: arg value '${argString}' provided without an arg name.`);
@@ -39,8 +49,7 @@ class ArgsListParser {
 		if (this.printArgs_)
 			console.log('\nArgs:', JSON.stringify(args, '', 2));
 
-		this.argDescriptions_.forEach(({names: [name], defaultValues}) =>
-			args[name] = args[name] || defaultValues);
+		this.argDescriptions_.forEach(({names: [name], defaultValue}) => args[name] = args[name] ?? defaultValue);
 
 		return args;
 	}
@@ -51,9 +60,9 @@ class ArgsListParser {
 
 	printHelp_() {
 		const valueCountHelps = {
-			int: ['no values', 'single int', 'multiple ints'],
-			bool: ['no values', 'single bool', 'multiple bools'],
-			string: ['no values', 'single string', 'multiple strings'],
+			int: ['no values', 'single int', 'multiple ints', 'repeated multiple ints'],
+			bool: ['no values', 'single bool', 'multiple bools', 'repeated multiple bools'],
+			string: ['no values', 'single string', 'multiple strings', 'repeated multiple strings'],
 		};
 		let lines = ArgsListParser.alignColumns_(this.argDescriptions_
 			.map(({names, type = 'string', values, example, explanation}) =>
@@ -113,7 +122,7 @@ class ArgsListParser {
 			error: COLORS.red,
 			warn: COLORS.yellow,
 			info: COLORS.blue,
-			...COLORS
+			...COLORS,
 		}).forEach(([log, color]) => {
 			let log_ = console[log] || console.log;
 			console[log] = (...args) => {
